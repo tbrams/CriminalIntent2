@@ -46,8 +46,10 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
-            // if the Adapter is already set up, just update
-            mAdapter.notifyItemChanged(mItemUpdatedPosition);
+            // if the Adapter is already set up, just update -
+            // TODO need new method for effective update of touched items
+            // mAdapter.notifyItemChanged(mItemUpdatedPosition);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -80,6 +82,7 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View v) {
             Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
             mItemUpdatedPosition = getAdapterPosition();
+            // TODO need new implementation for the "touched" item based update
             startActivity(intent);
         }
     }

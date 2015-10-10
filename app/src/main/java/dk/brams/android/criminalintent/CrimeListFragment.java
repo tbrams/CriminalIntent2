@@ -16,6 +16,8 @@ import java.util.List;
 public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
+    public int mItemUpdatedPosition;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,7 +47,7 @@ public class CrimeListFragment extends Fragment {
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
             // if the Adapter is already set up, just update
-            mAdapter.notifyDataSetChanged();
+            mAdapter.notifyItemChanged(mItemUpdatedPosition);
         }
     }
 
@@ -77,6 +79,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            mItemUpdatedPosition = getAdapterPosition();
             startActivity(intent);
         }
     }

@@ -6,15 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by tbrams on 10/10/15.
- */
 public class CrimeLab {
     private static CrimeLab sCrimeLab;
     private List<Crime> mCrimes;
 
     public static CrimeLab get(Context context) {
-        if (context == null) {
+        if (sCrimeLab == null) {
             sCrimeLab = new CrimeLab(context);
         }
         return sCrimeLab;

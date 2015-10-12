@@ -11,6 +11,7 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -53,7 +54,7 @@ public class CrimeFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Tell FragmentManager that we have a menu need
+        // Tell FragmentManager that we have a menu
         setHasOptionsMenu(true);
 
         // Retrieve the crimeId from the fragment arguments
@@ -123,11 +124,30 @@ public class CrimeFragment extends Fragment{
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
-        // No need to check for Crimes in list - we can only get here if there is something to click
-        // in the list...
-
         super.onCreateOptionsMenu(menu, inflater);
+
         inflater.inflate(R.menu.fragment_crime, menu);
+
+        // TODO: Only enable the delete action when there is content...
+        // boolean itemsAvailable =CrimeLab.get(getActivity()).getCrimes().size()>0;
+        // menu.findItem(R.id.menu_item_delete).setEnabled(itemsAvailable);
+
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete:
+                CrimeLab.get(getActivity()).deleteCrime(mCrime);
+                // pop hosting activity off stack
+                getActivity().finish();
+
+                // return true not needed in this case...
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

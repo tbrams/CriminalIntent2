@@ -8,6 +8,8 @@
     <string name="new_crime">New Crime</string>
     <string name="show_subtitle">Show Subtitle</string>
     <string name="hide_subtitle">Hide Subtitle</string>
-    <string name="subtitle_format">%1$s crimes</string>
+    <string name="subtitle_format_single">%1$s crime</string>
+    <string name="subtitle_format_plural">%1$s crimes</string>
     <string name="delete_crime">Delete Crime</string>
+    <string name="empty_crime_list_label">Click to log a crime</string>
 </resources>

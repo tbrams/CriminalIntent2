@@ -51,6 +51,16 @@
         android:layout_marginRight="16dp"
         android:text="@string/crime_suspect_text"/>
     <Button
+        android:id="@+id/dial_suspect"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/dial_suspect_text"
+        />
+
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/crime_report"

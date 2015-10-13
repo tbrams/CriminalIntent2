@@ -3,7 +3,6 @@ package dk.brams.android.criminalintent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
@@ -38,10 +37,10 @@ public class CrimeLab {
     }
 
 
-    private CursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
+    private CrimeCursorWrapper queryCrimes(String whereClause, String[] whereArgs) {
         Cursor cursor = mDatabase.query(
                 CrimeTable.NAME,
-                null, // Columns - this is *
+                null, // Columns - this is "*" or "all"
                 whereClause,
                 whereArgs,
                 null, // groupBy

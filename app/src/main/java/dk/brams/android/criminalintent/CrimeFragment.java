@@ -34,6 +34,8 @@ public class CrimeFragment extends Fragment{
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_TIME = 1;
     private static final int REQUEST_CONTACT = 2;
+    private static final int REQUEST_PHONE = 3;
+
 
 
     private Crime mCrime;
@@ -42,7 +44,8 @@ public class CrimeFragment extends Fragment{
     private CheckBox mSolvedCheckBox;
     private Button mReportButton;
     private Button mSuspectButton;
-
+    private Button mDialSuspectButton;
+    private int suspectID;
 
     public static CrimeFragment newInstance(UUID crimeId) {
         // create new Fragment with pre-bundled argument containing crimeId
@@ -149,7 +152,7 @@ public class CrimeFragment extends Fragment{
             }
         });
 
-        // declare pickContact Intent outside the handler - we will need it again soon...
+        // We will need this context in both contact look up and phone dialer
         final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
 
         mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
@@ -159,6 +162,15 @@ public class CrimeFragment extends Fragment{
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
         });
+
+        mDialSuspectButton = (Button) v.findViewById(R.id.dial_suspect);
+        mDialSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(pickContact, REQUEST_PHONE);
+            }
+        });
+
 
         if (mCrime.getSuspect()!=null){
             mSuspectButton.setText(mCrime.getSuspect());
@@ -204,52 +216,93 @@ public class CrimeFragment extends Fragment{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (resultCode != Activity.RESULT_OK)
             return;
 
-        Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-        mCrime.setDate(date);
-
         switch (requestCode) {
             case REQUEST_DATE:
+                Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+                mCrime.setDate(date);
                 updateDate();
                 break;
+
             case REQUEST_TIME:
                 updateTime();
                 break;
+
             case REQUEST_CONTACT:
-                if (data == null) {
-                    return;
-                }
+                if (data != null) {
+                    Uri contactUri = data.getData();
 
-                Uri contactUri = data.getData();
+                    // Specify which fields you want the query to return
+                    String[] queryFields = new String[]{
+                            ContactsContract.Contacts.DISPLAY_NAME,
+                            ContactsContract.Contacts._ID
+                    };
+                    // Perform the query
+                    Cursor c = queryContacts(contactUri, queryFields, null, null);
 
-                // Specify which fields you want the query to return
-                String[] queryFields = new String[] {
-                        ContactsContract.Contacts.DISPLAY_NAME
-                };
-                // Perform the query
-                Cursor c = getActivity().getContentResolver().query(
-                        contactUri,
-                        queryFields,
-                        null,
-                        null,
-                        null
-                );
-                try {
-                    // Double check that you actually got results
-                    if (c.getCount()==0)
+                    if (c == null)
                         return;
 
-                    // pull out the first column of the first row of data... that is the name
-                    c.moveToFirst();
-                    String suspect = c.getString(0);
-                    mCrime.setSuspect(suspect);
-                    mSuspectButton.setText(suspect);
+                    try {
+
+                        String suspect = c.getString(0);
+                        suspectID = c.getInt(1);
+                        mCrime.setSuspect(suspect);
+
+                        // make dial button visible and put the name on the suspect button
+                        mDialSuspectButton.setVisibility(View.VISIBLE);
+                        mSuspectButton.setText(suspect);
+                    } finally {
+                        c.close();
+                    }
+                }
+                break;
+
+            case REQUEST_PHONE:
+                String phoneNumber;
+
+                // Look up the phone number using ID
+                String[] queryFields = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER};
+                String whereClause = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
+                String[] args = {Integer.toString(suspectID)};
+
+                Cursor c = queryContacts(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        queryFields,
+                        whereClause,
+                        args);
+
+                if (c == null)
+                    return;
+
+                try {
+                    phoneNumber = c.getString(0);
                 } finally {
                     c.close();
                 }
+
+                // now that we have a number, launch an activity to dial
+                Uri phoneUri = Uri.parse("tel:" + phoneNumber);
+                Intent i = new Intent(Intent.ACTION_DIAL, phoneUri);
+                startActivity(i);
         }
+
+    }
+
+
+
+    private Cursor queryContacts(Uri uri, String[] fields, String whereClause, String[] args){
+        Cursor c = getActivity().getContentResolver().query(uri, fields, whereClause, args, null);
+        if (c.getCount()==0){
+            c.close();
+            return null;
+        }
+
+        c.moveToFirst();
+        return c;
     }
 
 

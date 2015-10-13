@@ -18,6 +18,10 @@ public class Crime {
         mSuspect = suspect;
     }
 
+    public String getPhotoFilename() {
+        return "IMG_" + getId().toString() + ".jpg";
+    }
+
     public Crime() {
 
         this(UUID.randomUUID());

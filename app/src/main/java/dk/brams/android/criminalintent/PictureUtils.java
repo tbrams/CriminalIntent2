@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
+import android.view.View;
 
 public class PictureUtils {
 
@@ -38,5 +39,10 @@ public class PictureUtils {
         activity.getWindowManager().getDefaultDisplay().getSize(size);
 
         return getScaledBitmap(path, size.x, size.y);
+    }
+
+    public static Bitmap getScaledBitmap(String path, View container)
+    {
+        return getScaledBitmap(path, container.getWidth(), container.getHeight());
     }
 }

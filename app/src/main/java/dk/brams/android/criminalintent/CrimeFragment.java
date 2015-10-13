@@ -3,6 +3,7 @@ package dk.brams.android.criminalintent;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
@@ -27,6 +28,7 @@ public class CrimeFragment extends Fragment{
     private static final String DIALOG_DATE = "DialogDate";
     private static final String DIALOG_TIME = "DialogTime";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_CONTACT = 1;
     private static final int REQUEST_TIME = 1;
 
 
@@ -34,7 +36,8 @@ public class CrimeFragment extends Fragment{
     private EditText mTitleField;
     private Button mDateButton, mTimeButton;
     private CheckBox mSolvedCheckBox;
-
+    private Button mReportButton;
+    private Button mSuspectButton;
 
 
     public static CrimeFragment newInstance(UUID crimeId) {
@@ -128,6 +131,37 @@ public class CrimeFragment extends Fragment{
                 mCrime.setSolved(isChecked);
             }
         });
+
+        mReportButton = (Button) v.findViewById(R.id.crime_report);
+        mReportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+                i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report));
+
+                // Force the app chooser to show every time
+                i=Intent.createChooser(i, getString(R.string.send_report));
+                startActivity(i);
+            }
+        });
+
+        // declare pickContact Intent outside the handler - we will need it again soon...
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+
+        mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(pickContact, REQUEST_CONTACT);
+            }
+        });
+
+        if (mCrime.getSuspect()!=null){
+            mSuspectButton.setText(mCrime.getSuspect());
+        }
+
         return v;
     }
 

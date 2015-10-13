@@ -54,13 +54,10 @@ public class CrimeLab {
 
 
     public void deleteCrime(Crime crime) {
-//        for (int i = 0; i < mCrimes.size(); i++) {
-//            if (crime.getId() == mCrimes.get(i).getId()) {
-//                mCrimes.remove(i);
-//                break;
-//            }
-//        }
+        String uuidString = crime.getId().toString();
+        mDatabase.delete(CrimeTable.NAME, CrimeTable.Cols.UUID + "=?", new String[] {uuidString});
     }
+
 
     public static CrimeLab get(Context context) {
         if (sCrimeLab == null) {
